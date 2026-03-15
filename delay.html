@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>奶茶外卖类比网络时延动画</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", sans-serif;
+      background: linear-gradient(to bottom, #fef7f0, #f6fbff);
+      overflow: hidden;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 18px 0 8px;
+      color: #333;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .controls button {
+      margin: 0 8px;
+      padding: 10px 18px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #4f8cff;
+      color: white;
+    }
+
+    .controls button:hover {
+      background: #3b73d9;
+    }
+
+    .scene {
+      position: relative;
+      width: 1400px;
+      height: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border: 2px solid #dbe7f5;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .road {
+      position: absolute;
+      left: 350px;
+      top: 420px;
+      width: 700px;
+      height: 70px;
+      background: #666;
+      border-radius: 16px;
+    }
+
+    .road::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      top: 33px;
+      height: 4px;
+      background: repeating-linear-gradient(
+        to right,
+        #fff 0px,
+        #fff 30px,
+        transparent 30px,
+        transparent 60px
+      );
+    }
+
+    .shop, .home {
+      position: absolute;
+      width: 240px;
+      height: 260px;
+      background: #f9f9f9;
+      border: 3px solid #555;
+      border-radius: 12px;
+      top: 180px;
+    }
+
+    .shop {
+      left: 60px;
+    }
+
+    .home {
+      right: 60px;
+    }
+
+    .shop .sign, .home .sign {
+      position: absolute;
+      top: -18px;
+      left: 30px;
+      width: 180px;
+      height: 38px;
+      line-height: 38px;
+      text-align: center;
+      background: #ffb84d;
+      border-radius: 10px;
+      font-weight: bold;
+      color: #333;
+      border: 2px solid #cc8a1f;
+    }
+
+    .window {
+      position: absolute;
+      left: 30px;
+      top: 60px;
+      width: 180px;
+      height: 110px;
+      background: #dff3ff;
+      border: 2px solid #666;
+      border-radius: 8px;
+    }
+
+    .door {
+      position: absolute;
+      left: 85px;
+      bottom: 0;
+      width: 70px;
+      height: 90px;
+      background: #c9a27c;
+      border: 2px solid #555;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .elevator {
+      position: absolute;
+      right: 25px;
+      top: 55px;
+      width: 70px;
+      height: 130px;
+      border: 3px solid #666;
+      background: #ddd;
+      border-radius: 6px;
+    }
+
+    .elevator::before {
+      content: "电梯";
+      position: absolute;
+      top: -28px;
+      left: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .person {
+      position: absolute;
+      width: 36px;
+      height: 90px;
+      transition: left 1s linear, top 1s linear;
+    }
+
+    .head {
+      width: 28px;
+      height: 28px;
+      background: #ffd39b;
+      border: 2px solid #333;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+
+    .body {
+      width: 22px;
+      height: 30px;
+      background: #5aa9ff;
+      margin: 2px auto 0;
+      border-radius: 6px;
+      border: 2px solid #333;
+    }
+
+    .legs {
+      position: relative;
+      width: 30px;
+      height: 24px;
+      margin: 2px auto 0;
+    }
+
+    .legs::before, .legs::after {
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 24px;
+      background: #333;
+      top: 0;
+    }
+
+    .legs::before { left: 8px; }
+    .legs::after { right: 8px; }
+
+    .staff .body {
+      background: #ff8a65;
+    }
+
+    .customer .body {
+      background: #6cc070;
+    }
+
+    .rider .body {
+      background: #ffd54f;
+    }
+
+    .bike {
+      position: absolute;
+      width: 90px;
+      height: 50px;
+      transition: left 1s linear;
+    }
+
+    .wheel {
+      position: absolute;
+      bottom: 0;
+      width: 26px;
+      height: 26px;
+      border: 4px solid #222;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .wheel.left { left: 0; }
+    .wheel.right { right: 0; }
+
+    .frame {
+      position: absolute;
+      left: 18px;
+      top: 15px;
+      width: 54px;
+      height: 4px;
+      background: #222;
+      transform: rotate(-10deg);
+    }
+
+    .seat {
+      position: absolute;
+      left: 26px;
+      top: 6px;
+      width: 16px;
+      height: 4px;
+      background: #222;
+    }
+
+    .handle {
+      position: absolute;
+      right: 16px;
+      top: 6px;
+      width: 16px;
+      height: 4px;
+      background: #222;
+      transform: rotate(30deg);
+    }
+
+    .milktea {
+      position: absolute;
+      width: 26px;
+      height: 42px;
+      background: #d8a15b;
+      border: 2px solid #333;
+      border-radius: 0 0 8px 8px;
+      top: 310px;
+      left: 180px;
+      opacity: 1;
+    }
+
+    .milktea::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: -2px;
+      width: 26px;
+      height: 10px;
+      background: #fff;
+      border: 2px solid #333;
+      border-radius: 50%;
+    }
+
+    .milktea::after {
+      content: "";
+      position: absolute;
+      top: -24px;
+      left: 11px;
+      width: 4px;
+      height: 18px;
+      background: #333;
+    }
+
+    .bubble {
+      position: absolute;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.95);
+      border: 2px solid #4f8cff;
+      border-radius: 12px;
+      color: #333;
+      font-size: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      display: none;
+      z-index: 20;
+    }
+
+    .status-panel {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      width: 1100px;
+      background: rgba(255,255,255,0.95);
+      border: 2px solid #d0dff5;
+      border-radius: 16px;
+      padding: 16px 22px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .status-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2a5ec9;
+      margin-bottom: 6px;
+    }
+
+    .status-desc {
+      font-size: 16px;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    .label {
+      position: absolute;
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+      background: rgba(255,255,255,0.9);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">奶茶外卖类比网络时延动画演示</div>
+  <div class="subtitle">发送时延、传播时延、处理时延、排队时延</div>
+
+  <div class="controls">
+    <button onclick="startDemo()">开始演示</button>
+    <button onclick="pauseDemo()">暂停</button>
+    <button onclick="resumeDemo()">继续</button>
+    <button onclick="resetDemo()">重置</button>
+  </div>
+
+  <div class="scene">
+    <div class="shop">
+      <div class="sign">奶茶店</div>
+      <div class="window"></div>
+      <div class="door"></div>
+    </div>
+
+    <div class="home">
+      <div class="sign">你家小区</div>
+      <div class="window"></div>
+      <div class="door"></div>
+      <div class="elevator"></div>
+    </div>
+
+    <div class="road"></div>
+
+    <div class="label" style="left: 110px; top: 150px;">店员打包区</div>
+    <div class="label" style="left: 620px; top: 395px;">送餐路线（1公里）</div>
+    <div class="label" style="right: 85px; top: 150px;">用户与电梯</div>
+
+    <!-- 店员 -->
+    <div class="person staff" id="staff" style="left: 140px; top: 260px;">
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="legs"></div>
+    </div>
+
+    <!-- 顾客 -->
+    <div class="person customer" id="customer" style="left: 1220px; top: 260px;">
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="legs"></div>
+    </div>
+
+    <!-- 奶茶 -->
+    <div class="milktea" id="milktea"></div>
+
+    <!-- 外卖员 -->
+    <div class="bike" id="bike" style="left: 280px; top: 395px; display:none;">
+      <div class="wheel left"></div>
+      <div class="wheel right"></div>
+      <div class="frame"></div>
+      <div class="seat"></div>
+      <div class="handle"></div>
+    </div>
+
+    <div class="person rider" id="rider" style="left: 310px; top: 335px; display:none;">
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="legs"></div>
+    </div>
+
+    <!-- 气泡 -->
+    <div class="bubble" id="bubble"></div>
+
+    <!-- 状态面板 -->
+    <div class="status-panel">
+      <div class="status-title" id="statusTitle">准备开始</div>
+      <div class="status-desc" id="statusDesc">
+        本动画通过“奶茶外卖”类比数据传输中的四种时延。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTimeouts = [];
+    let paused = false;
+    let remainingSteps = [];
+    let stepIndex = 0;
+
+    const staff = document.getElementById("staff");
+    const rider = document.getElementById("rider");
+    const bike = document.getElementById("bike");
+    const customer = document.getElementById("customer");
+    const milktea = document.getElementById("milktea");
+    const bubble = document.getElementById("bubble");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusDesc = document.getElementById("statusDesc");
+
+    function setStatus(title, desc) {
+      statusTitle.innerText = title;
+      statusDesc.innerText = desc;
+    }
+
+    function showBubble(text, left, top) {
+      bubble.innerText = text;
+      bubble.style.left = left + "px";
+      bubble.style.top = top + "px";
+      bubble.style.display = "block";
+    }
+
+    function hideBubble() {
+      bubble.style.display = "none";
+    }
+
+    const steps = [
+      function () {
+        setStatus(
+          "第一阶段：店员打包奶茶（发送时延）",
+          "店员开始装杯、封盖、贴外卖单并打包。这个过程对应数据在发送端被逐步送上链路之前所花费的时间，属于发送时延。"
+        );
+        showBubble("开始打包奶茶...", 120, 220);
+
+        let up = false;
+        let count = 0;
+        const interval = setInterval(() => {
+          if (paused) return;
+          staff.style.top = up ? "255px" : "265px";
+          up = !up;
+          count++;
+          if (count > 8) {
+            clearInterval(interval);
+            milktea.style.left = "245px";
+            hideBubble();
+            nextStepDelay(1500);
+          }
+        }, 300);
+      },
+
+      function () {
+        setStatus(
+          "第二阶段：外卖员骑车送到楼下（传播时延）",
+          "外卖员接过已经打包好的奶茶，骑车从奶茶店到你家小区楼下。这段纯赶路过程，对应数据在链路中传播所花费的时间，属于传播时延。"
+        );
+        showBubble("奶茶已打包，开始配送！", 280, 300);
+
+        rider.style.display = "block";
+        bike.style.display = "block";
+
+        setTimeout(() => {
+          if (paused) return;
+          hideBubble();
+          rider.style.left = "980px";
+          bike.style.left = "950px";
+          nextStepDelay(4000);
+        }, 1200);
+      },
+
+      function () {
+        setStatus(
+          "第三阶段：楼下打电话确认（处理时延）",
+          "外卖员到楼下后，需要核对订单信息、拨打电话确认。这就像路由器收到分组后，要先查看首部、查表、处理，再决定下一步动作，对应处理时延。"
+        );
+        showBubble("您好，您的奶茶到楼下啦～", 930, 280);
+
+        rider.style.top = "325px";
+        nextStepDelay(3000);
+      },
+
+      function () {
+        setStatus(
+          "第四阶段：等电梯下楼取餐（排队时延）",
+          "你已经接到电话，但还不能立刻拿到奶茶，因为要先等电梯。这种‘还没开始真正处理，只是在等待’的过程，就像分组在路由器队列中排队，属于排队时延。"
+        );
+        hideBubble();
+        showBubble("电梯高峰，先等一会儿...", 1120, 220);
+
+        let count = 0;
+        const interval = setInterval(() => {
+          if (paused) return;
+          customer.style.top = count % 2 === 0 ? "258px" : "264px";
+          count++;
+          if (count > 10) {
+            clearInterval(interval);
+            customer.style.left = "1080px";
+            customer.style.top = "500px";
+            nextStepDelay(1200);
+          }
+        }, 280);
+      },
+
+      function () {
+        setStatus(
+          "演示完成",
+          "奶茶外卖全过程中：打包对应发送时延，路上配送对应传播时延，楼下打电话确认对应处理时延，等电梯下楼对应排队时延。通过生活类比，可以更直观地理解网络时延。"
+        );
+        hideBubble();
+        showBubble("终于拿到奶茶啦！", 1020, 460);
+      }
+    ];
+
+    function runStep(index) {
+      if (index < steps.length) {
+        stepIndex = index;
+        steps[index]();
+      }
+    }
+
+    function nextStepDelay(delay) {
+      const t = setTimeout(() => {
+        if (!paused) {
+          runStep(stepIndex + 1);
+        }
+      }, delay);
+      currentTimeouts.push(t);
+    }
+
+    function startDemo() {
+      resetDemo();
+      paused = false;
+      runStep(0);
+    }
+
+    function pauseDemo() {
+      paused = true;
+      currentTimeouts.forEach(t => clearTimeout(t));
+      currentTimeouts = [];
+      setStatus("已暂停", "动画已暂停，你可以点击“继续”恢复演示。");
+    }
+
+    function resumeDemo() {
+      if (!paused) return;
+      paused = false;
+      setStatus("继续演示", "动画继续进行中……");
+      runStep(stepIndex);
+    }
+
+    function resetDemo() {
+      currentTimeouts.forEach(t => clearTimeout(t));
+      currentTimeouts = [];
+      paused = false;
+      stepIndex = 0;
+
+      staff.style.left = "140px";
+      staff.style.top = "260px";
+
+      milktea.style.left = "180px";
+      milktea.style.top = "310px";
+
+      rider.style.display = "none";
+      bike.style.display = "none";
+      rider.style.left = "310px";
+      rider.style.top = "335px";
+      bike.style.left = "280px";
+
+      customer.style.left = "1220px";
+      customer.style.top = "260px";
+
+      hideBubble();
+      setStatus("准备开始", "本动画通过“奶茶外卖”类比数据传输中的四种时延。");
+    }
+  </script>
+</body>
+</html>
